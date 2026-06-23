@@ -57,7 +57,8 @@ lto = true
     // Create src/lib.rs
     let lib_rs = r##"//! My Dioxus Mini Program App
 
-use dioxus_core::prelude::*;
+use dioxus_core::*;
+use dioxus_core_macro::{rsx, component};
 use wasm_bindgen::prelude::*;
 use wee_alloc::WeeAlloc;
 
