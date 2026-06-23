@@ -38,6 +38,9 @@ dioxus = "0.7"
 wasm-bindgen = "0.2"
 wee_alloc = "0.4"
 
+# Exclude from parent workspace
+[workspace]
+
 [profile.release]
 opt-level = "s"
 lto = true
