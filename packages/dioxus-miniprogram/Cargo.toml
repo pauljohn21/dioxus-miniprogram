@@ -1,0 +1,46 @@
+[package]
+name = "dioxus-miniprogram"
+version = "0.1.0"
+authors = ["Dioxus Labs"]
+edition = "2024"
+description = "WeChat Mini Program renderer for Dioxus using WXWebAssembly and Worker"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/pauljohn21/dioxus-miniprogram"
+homepage = "https://dioxuslabs.com"
+keywords = ["wechat", "miniprogram", "dioxus", "ui", "wasm", "webassembly", "wxwebassembly"]
+categories = ["gui", "wasm", "web-programming"]
+
+[features]
+default = ["devtools"]
+devtools = ["dep:dioxus-devtools"]
+worker = []
+
+[dependencies]
+dioxus-core = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
+dioxus-core-types = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
+dioxus-html = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
+dioxus-signals = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
+dioxus-cli-config = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
+dioxus-devtools = { git = "https://github.com/DioxusLabs/dioxus", branch = "main", optional = true }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+rustc-hash = "2"
+tracing = "0.1"
+wasm-bindgen = "0.2"
+wasm-bindgen-futures = "0.4"
+js-sys = "0.3"
+futures-util = "0.3"
+futures-channel = { version = "0.3", features = ["sink"] }
+
+# Web API bindings
+web-sys = { version = "0.3", features = ["Worker", "MessageEvent", "Blob", "Url"] }
+serde-wasm-bindgen = "0.6"
+
+[dev-dependencies]
+wasm-bindgen-test = "0.3"
+console_error_panic_hook = "0.1"
+
+[package.metadata.docs.rs]
+all-features = true
+rustdoc-args = ["-Zunstable-options", "-Zrustdoc-scrape-examples"]

@@ -1,0 +1,21 @@
+# Dioxus Mini Program - .gitignore
+
+# Rust
+target/
+Cargo.lock
+
+# Editor
+*.rs.bk
+.vscode/
+.idea/
+
+# macOS
+.DS_Store
+
+# Testing
+coverage/
+*.profraw
+
+# Build artifacts
+*.wasm
+pkg/
