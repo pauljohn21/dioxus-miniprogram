@@ -68,8 +68,7 @@ pub fn run() {
     dioxus_miniprogram::launch::launch(App);
 }
 
-#[component]
-fn App() -> Element {
+fn App() -> dioxus_core::Element {
     rsx! {
         view {
             class: "container",
