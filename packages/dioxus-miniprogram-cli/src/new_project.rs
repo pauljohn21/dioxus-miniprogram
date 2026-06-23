@@ -34,7 +34,8 @@ crate-type = ["cdylib", "rlib"]
 
 [dependencies]
 dioxus-miniprogram = {{ git = "https://github.com/pauljohn21/dioxus-miniprogram.git" }}
-dioxus = "0.7"
+dioxus-core = "0.7"
+dioxus-core-macro = "0.7"
 wasm-bindgen = "0.2"
 wee_alloc = "0.4"
 
