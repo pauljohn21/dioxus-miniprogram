@@ -57,6 +57,7 @@ lto = true
     let lib_rs = r##"//! My Dioxus Mini Program App
 
 use dioxus::prelude::*;
+use wasm_bindgen::prelude::*;
 use wee_alloc::WeeAlloc;
 
 #[global_allocator]
@@ -64,7 +65,7 @@ static ALLOC: WeeAlloc = WeeAlloc::INIT;
 
 #[wasm_bindgen]
 pub fn run() {
-    dioxus_miniprogram::launch(App);
+    dioxus_miniprogram::launch::launch(App);
 }
 
 #[component]
