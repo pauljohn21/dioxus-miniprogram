@@ -54,6 +54,9 @@
 pub use crate::cfg::Config;
 use crate::dom::MiniProgramDom;
 use dioxus_core::VirtualDom;
+use wasm_bindgen::JsCast;
+use wasm_bindgen::JsValue;
+use wasm_bindgen::closure::Closure;
 
 mod cfg;
 mod dom;
