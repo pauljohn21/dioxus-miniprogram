@@ -16,12 +16,12 @@ devtools = ["dep:dioxus-devtools"]
 worker = []
 
 [dependencies]
-dioxus-core = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
-dioxus-core-types = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
-dioxus-html = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
-dioxus-signals = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
-dioxus-cli-config = { git = "https://github.com/DioxusLabs/dioxus", branch = "main" }
-dioxus-devtools = { git = "https://github.com/DioxusLabs/dioxus", branch = "main", optional = true }
+dioxus-core = "0.7"
+dioxus-core-types = "0.7"
+dioxus-html = "0.7"
+dioxus-signals = "0.7"
+dioxus-cli-config = "0.7"
+dioxus-devtools = { version = "0.7", optional = true }
 
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
