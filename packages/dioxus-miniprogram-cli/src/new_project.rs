@@ -57,8 +57,7 @@ lto = true
     // Create src/lib.rs
     let lib_rs = r##"//! My Dioxus Mini Program App
 
-use dioxus_core::*;
-use dioxus_core_macro::{rsx, component};
+use dioxus_core::prelude::*;
 use wasm_bindgen::prelude::*;
 use wee_alloc::WeeAlloc;
 
@@ -70,7 +69,7 @@ pub fn run() {
     dioxus_miniprogram::launch::launch(App);
 }
 
-fn App() -> Element {
+fn App() -> dioxus_core::Element {
     rsx! {
         view {
             class: "container",
