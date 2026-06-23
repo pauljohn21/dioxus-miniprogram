@@ -3,7 +3,7 @@
 //! These functions are used to start a Dioxus application with the Mini Program renderer.
 
 use crate::cfg::Config;
-use dioxus_core::{Element, VirtualDom};
+use dioxus_core::{RenderError, VNode, VirtualDom};
 
 /// Launch the dioxus app with the default configuration.
 ///
@@ -21,7 +21,7 @@ use dioxus_core::{Element, VirtualDom};
 ///     }
 /// }
 /// ```
-pub fn launch(app: fn() -> Element) {
+pub fn launch(app: fn() -> Result<VNode, RenderError>) {
     wasm_bindgen_futures::spawn_local(async move {
         let vdom = VirtualDom::new(app);
         let config = Config::new();
@@ -48,7 +48,7 @@ pub fn launch(app: fn() -> Element) {
 ///     }
 /// }
 /// ```
-pub fn launch_cfg(app: fn() -> Element, config: Config) {
+pub fn launch_cfg(app: fn() -> Result<VNode, RenderError>, config: Config) {
     wasm_bindgen_futures::spawn_local(async move {
         let vdom = VirtualDom::new(app);
         crate::run(vdom, config).await;
@@ -60,7 +60,7 @@ pub fn launch_cfg(app: fn() -> Element, config: Config) {
 /// This function creates a Worker that runs the WASM code and communicates
 /// with the main thread via postMessage. This is the recommended mode for
 /// production use as it provides better performance.
-pub async fn launch_with_worker(_app: fn() -> Element) {
+pub async fn launch_with_worker(_app: fn() -> Result<VNode, RenderError>) {
     let config = Config::new();
     crate::run_with_worker(config).await.unwrap();
 }
