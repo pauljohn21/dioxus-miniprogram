@@ -36,6 +36,7 @@ crate-type = ["cdylib", "rlib"]
 dioxus-miniprogram = {{ git = "https://github.com/pauljohn21/dioxus-miniprogram.git" }}
 dioxus-core = "0.7"
 dioxus-core-macro = "0.7"
+dioxus-html = "0.7"
 wasm-bindgen = "0.2"
 wee_alloc = "0.4"
 
@@ -59,6 +60,19 @@ lto = true
 
 use dioxus_core::*;
 use dioxus_core_macro::{rsx, component};
+
+// Wrapper module for dioxus-html elements
+// The rsx! macro expects elements to be at dioxus_elements::*
+mod dioxus_elements {
+    pub use dioxus_html::*;
+    pub mod elements {
+        pub use dioxus_html::*;
+    }
+    pub mod events {
+        pub use dioxus_html::events::*;
+    }
+}
+
 use wasm_bindgen::prelude::*;
 use wee_alloc::WeeAlloc;
 
