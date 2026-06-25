@@ -179,7 +179,10 @@ page {
     )?;
 
     // Create utils/wasm.js (参考 miniprogram-1 的 utils/wasm.js)
-    let wasm_js = r##"/**
+    // Convert package name to WASM file name (replace - with _)
+    let wasm_name = name.replace('-', "_");
+    let wasm_js = format!(
+        r##"/**
  * Dioxus WASM Wrapper for Mini Program
  */
 
@@ -189,39 +192,39 @@ let cachedTextDecoder = null;
 let cachedTextEncoder = null;
 let cachedUint8ArrayMemory0 = null;
 
-const WASM_PATH = '/pkg/app_bg.wasm';
+const WASM_PATH = '/pkg/{}_bg.wasm';
 
-function initMemory() {
+function initMemory() {{
     cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
-    cachedTextDecoder = new TextDecoder('utf-8', { ignoreBOM: true, fatal: true });
+    cachedTextDecoder = new TextDecoder('utf-8', {{ ignoreBOM: true, fatal: true }});
     cachedTextDecoder.decode();
     cachedTextEncoder = new TextEncoder();
-}
+}}
 
-function getUint8ArrayMemory0() {
-    if (cachedUint8ArrayMemory0 === null || cachedUint8ArrayMemory0.byteLength === 0) {
+function getUint8ArrayMemory0() {{
+    if (cachedUint8ArrayMemory0 === null || cachedUint8ArrayMemory0.byteLength === 0) {{
         cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
-    }
+    }}
     return cachedUint8ArrayMemory0;
-}
+}}
 
-function getStringFromWasm0(ptr, len) {
+function getStringFromWasm0(ptr, len) {{
     return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr >>> 0, (ptr >>> 0) + len));
-}
+}}
 
-export async function initWasm() {
+export async function initWasm() {{
     if (wasm) return wasm;
 
-    try {
+    try {{
         console.log('[Dioxus] Loading WASM...');
         
-        if (typeof WXWebAssembly === 'undefined') {
+        if (typeof WXWebAssembly === 'undefined') {{
             throw new Error('WXWebAssembly not available. Need base library v2.15.0+');
-        }
+        }}
 
-        const { instance } = await WXWebAssembly.instantiate(WASM_PATH, {
-            "./app_bg.js": {
-                __wbindgen_init_externref_table: function() {
+        const {{ instance }} = await WXWebAssembly.instantiate(WASM_PATH, {{
+            "./{}_bg.js": {{
+                __wbindgen_init_externref_table: function() {{
                     const table = instance.exports.__wbindgen_externrefs;
                     const offset = table.grow(4);
                     table.set(0, undefined);
@@ -229,34 +232,36 @@ export async function initWasm() {
                     table.set(offset + 1, null);
                     table.set(offset + 2, true);
                     table.set(offset + 3, false);
-                }
-            }
-        });
+                }}
+            }}
+        }});
         
         wasm = instance.exports;
         
-        if (typeof wasm.__wbindgen_start === 'function') {
+        if (typeof wasm.__wbindgen_start === 'function') {{
             wasm.__wbindgen_start();
-        }
+        }}
         
         initMemory();
         console.log('[Dioxus] WASM loaded');
         return wasm;
-    } catch (error) {
+    }} catch (error) {{
         console.error('[Dioxus] WASM load failed:', error);
         throw error;
-    }
-}
+    }}
+}}
 
-export async function runDioxus() {
+export async function runDioxus() {{
     await initWasm();
     if (wasm.run) wasm.run();
-}
+}}
 
-export function isWasmReady() {
+export function isWasmReady() {{
     return wasm !== null;
-}
-"##;
+}}
+"##,
+        wasm_name, wasm_name
+    );
     std::fs::write(project_dir.join("utils/wasm.js"), wasm_js)?;
 
     // Create pages/index/index.wxml
