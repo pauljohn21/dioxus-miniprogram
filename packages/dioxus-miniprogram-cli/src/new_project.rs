@@ -178,17 +178,165 @@ page {
         serde_json::to_string_pretty(&project_config_json)?,
     )?;
 
-    // Create utils/wasm.js (使用 wasm-pack 生成的 glue 代码 + WXWebAssembly)
+    // Create utils/wasm.js (手动复制 wasm-pack glue 代码，适配小程序)
     let wasm_name = name.replace('-', "_");
     let wasm_js = format!(
         r##"/**
  * Dioxus WASM Wrapper for Mini Program
- * Uses wasm-pack generated glue code with WXWebAssembly for loading
+ * Manual glue code adapted from wasm-pack for WeChat Mini Program
  */
 
-import * as dioxusModule from '../pkg/{}.js';
-
 let wasm = null;
+let cachedTextDecoder = null;
+let cachedUint8ArrayMemory0 = null;
+
+function getUint8ArrayMemory0() {{
+    if (cachedUint8ArrayMemory0 === null || cachedUint8ArrayMemory0.byteLength === 0) {{
+        cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
+    }}
+    return cachedUint8ArrayMemory0;
+}}
+
+function getStringFromWasm0(ptr, len) {{
+    return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr >>> 0, (ptr >>> 0) + len));
+}}
+
+function isLikeNone(x) {{
+    return x === undefined || x === null;
+}}
+
+function addToExternrefTable0(obj) {{
+    const idx = wasm.__externref_table_alloc();
+    wasm.__wbindgen_externrefs.set(idx, obj);
+    return idx;
+}}
+
+function takeFromExternrefTable0(idx) {{
+    const value = wasm.__wbindgen_externrefs.get(idx);
+    wasm.__externref_table_dealloc(idx);
+    return value;
+}}
+
+const CLOSURE_DTORS = (typeof FinalizationRegistry === 'undefined')
+    ? {{ register: () => {{}}, unregister: () => {{}} }}
+    : new FinalizationRegistry(state => wasm.__wbindgen_destroy_closure(state.a, state.b));
+
+function makeMutClosure(arg0, arg1, f) {{
+    const state = {{ a: arg0, b: arg1, cnt: 1 }};
+    const real = (...args) => {{
+        state.cnt++;
+        const a = state.a;
+        state.a = 0;
+        try {{
+            return f(a, state.b, ...args);
+        }} finally {{
+            state.a = a;
+            real._wbg_cb_unref();
+        }}
+    }};
+    real._wbg_cb_unref = () => {{
+        if (--state.cnt === 0) {{
+            wasm.__wbindgen_destroy_closure(state.a, state.b);
+            state.a = 0;
+            CLOSURE_DTORS.unregister(real);
+        }}
+    }};
+    CLOSURE_DTORS.register(real, state, state);
+    return real;
+}}
+
+let numBytesDecoded = 0;
+const MAX_SAFARI_DECODE_BYTES = 2146435072;
+function decodeText(ptr, len) {{
+    numBytesDecoded += len;
+    if (numBytesDecoded >= MAX_SAFARI_DECODE_BYTES) {{
+        cachedTextDecoder = new TextDecoder('utf-8', {{ ignoreBOM: true, fatal: true }});
+        cachedTextDecoder.decode();
+        numBytesDecoded = len;
+    }}
+    return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr, ptr + len));
+}}
+
+function __wbg_get_imports() {{
+    const import0 = {{
+        __proto__: null,
+        __wbg___wbindgen_is_function_1ff95bcc5517c252: function(arg0) {{
+            const ret = typeof(arg0) === 'function';
+            return ret;
+        }},
+        __wbg___wbindgen_is_undefined_c05833b95a3cf397: function(arg0) {{
+            const ret = arg0 === undefined;
+            return ret;
+        }},
+        __wbg___wbindgen_throw_344f42d3211c4765: function(arg0, arg1) {{
+            throw new Error(getStringFromWasm0(arg0, arg1));
+        }},
+        __wbg_queueMicrotask_0ab5b2d2393e99b9: function(arg0) {{
+            const ret = arg0.queueMicrotask;
+            return ret;
+        }},
+        __wbg_queueMicrotask_6a09b7bc46549209: function(arg0) {{
+            queueMicrotask(arg0);
+        }},
+        __wbg_resolve_2191a4dfe481c25b: function(arg0) {{
+            const ret = Promise.resolve(arg0);
+            return ret;
+        }},
+        __wbg_static_accessor_GLOBAL_4ef717fb391d88b7: function() {{
+            const ret = typeof global === 'undefined' ? null : global;
+            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+        }},
+        __wbg_static_accessor_GLOBAL_THIS_8d1badc68b5a74f4: function() {{
+            const ret = typeof globalThis === 'undefined' ? null : globalThis;
+            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+        }},
+        __wbg_static_accessor_SELF_146583524fe1469b: function() {{
+            const ret = typeof self === 'undefined' ? null : self;
+            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+        }},
+        __wbg_static_accessor_WINDOW_f2829a2234d7819e: function() {{
+            const ret = typeof window === 'undefined' ? null : window;
+            return isLikeNone(ret) ? 0 : addToExternrefTable0(ret);
+        }},
+        __wbg_then_6ec10ae38b3e92f7: function(arg0, arg1) {{
+            const ret = arg0.then(arg1);
+            return ret;
+        }},
+        __wbindgen_cast_0000000000000001: function(arg0, arg1) {{
+            const ret = makeMutClosure(arg0, arg1, wasm.wasm_bindgen__convert__closures_____invoke__h8504815908be116e);
+            return ret;
+        }},
+        __wbindgen_init_externref_table: function() {{
+            const table = wasm.__wbindgen_externrefs;
+            const offset = table.grow(4);
+            table.set(0, undefined);
+            table.set(offset + 0, undefined);
+            table.set(offset + 1, null);
+            table.set(offset + 2, true);
+            table.set(offset + 3, false);
+        }},
+    }};
+    return {{
+        __proto__: null,
+        "./{}_bg.js": import0,
+    }};
+}}
+
+function __wbg_finalize_init(instance, module) {{
+    wasm = instance.exports;
+    cachedUint8ArrayMemory0 = null;
+    wasm.__wbindgen_start();
+    return wasm;
+}}
+
+async function __wbg_load(module, imports) {{
+    const instance = await WXWebAssembly.instantiate(module, imports);
+    if (instance instanceof WebAssembly.Instance) {{
+        return {{ instance, module }};
+    }} else {{
+        return instance;
+    }}
+}}
 
 export async function initWasm() {{
     if (wasm) return wasm;
@@ -201,10 +349,10 @@ export async function initWasm() {{
         }}
 
         const wasmPath = '/pkg/{}_bg.wasm';
+        const imports = __wbg_get_imports();
+        const {{ instance, module }} = await __wbg_load(wasmPath, imports);
+        wasm = __wbg_finalize_init(instance, module);
         
-        const {{ module }} = await WXWebAssembly.compile(wasmPath);
-        
-        wasm = dioxusModule.initSync(module);
         console.log('[Dioxus] WASM loaded');
         return wasm;
     }} catch (error) {{
@@ -215,9 +363,7 @@ export async function initWasm() {{
 
 export async function runDioxus() {{
     await initWasm();
-    if (typeof dioxusModule.run === 'function') {{
-        dioxusModule.run();
-    }}
+    if (wasm.run) wasm.run();
 }}
 
 export function isWasmReady() {{
