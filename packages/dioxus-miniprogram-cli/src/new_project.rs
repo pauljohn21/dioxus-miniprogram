@@ -178,39 +178,17 @@ page {
         serde_json::to_string_pretty(&project_config_json)?,
     )?;
 
-    // Create utils/wasm.js (参考 miniprogram-1 的 utils/wasm.js)
-    // Convert package name to WASM file name (replace - with _)
+    // Create utils/wasm.js (使用 wasm-pack 生成的 glue 代码 + WXWebAssembly)
     let wasm_name = name.replace('-', "_");
     let wasm_js = format!(
         r##"/**
  * Dioxus WASM Wrapper for Mini Program
+ * Uses wasm-pack generated glue code with WXWebAssembly for loading
  */
 
+import * as dioxusModule from '../pkg/{}.js';
+
 let wasm = null;
-let WASM_VECTOR_LEN = 0;
-let cachedTextDecoder = null;
-let cachedTextEncoder = null;
-let cachedUint8ArrayMemory0 = null;
-
-const WASM_PATH = '/pkg/{}_bg.wasm';
-
-function initMemory() {{
-    cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
-    cachedTextDecoder = new TextDecoder('utf-8', {{ ignoreBOM: true, fatal: true }});
-    cachedTextDecoder.decode();
-    cachedTextEncoder = new TextEncoder();
-}}
-
-function getUint8ArrayMemory0() {{
-    if (cachedUint8ArrayMemory0 === null || cachedUint8ArrayMemory0.byteLength === 0) {{
-        cachedUint8ArrayMemory0 = new Uint8Array(wasm.memory.buffer);
-    }}
-    return cachedUint8ArrayMemory0;
-}}
-
-function getStringFromWasm0(ptr, len) {{
-    return cachedTextDecoder.decode(getUint8ArrayMemory0().subarray(ptr >>> 0, (ptr >>> 0) + len));
-}}
 
 export async function initWasm() {{
     if (wasm) return wasm;
@@ -222,27 +200,11 @@ export async function initWasm() {{
             throw new Error('WXWebAssembly not available. Need base library v2.15.0+');
         }}
 
-        const {{ instance }} = await WXWebAssembly.instantiate(WASM_PATH, {{
-            "./{}_bg.js": {{
-                __wbindgen_init_externref_table: function() {{
-                    const table = instance.exports.__wbindgen_externrefs;
-                    const offset = table.grow(4);
-                    table.set(0, undefined);
-                    table.set(offset + 0, undefined);
-                    table.set(offset + 1, null);
-                    table.set(offset + 2, true);
-                    table.set(offset + 3, false);
-                }}
-            }}
-        }});
+        const wasmPath = '/pkg/{}_bg.wasm';
         
-        wasm = instance.exports;
+        const {{ module }} = await WXWebAssembly.compile(wasmPath);
         
-        if (typeof wasm.__wbindgen_start === 'function') {{
-            wasm.__wbindgen_start();
-        }}
-        
-        initMemory();
+        wasm = dioxusModule.initSync(module);
         console.log('[Dioxus] WASM loaded');
         return wasm;
     }} catch (error) {{
@@ -253,7 +215,9 @@ export async function initWasm() {{
 
 export async function runDioxus() {{
     await initWasm();
-    if (wasm.run) wasm.run();
+    if (typeof dioxusModule.run === 'function') {{
+        dioxusModule.run();
+    }}
 }}
 
 export function isWasmReady() {{
